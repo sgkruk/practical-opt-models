@@ -23,6 +23,7 @@ def gen_refined(n):
 
 from linear_solver import pywraplp
 from tools import SolVal,ObjVal,newSolver
+
 def solve_gas(C, D):
   s = newSolver('Gas blending problem')
   nR,nF = len(C),len(D)                                   

@@ -1,7 +1,4 @@
 
-from linear_solver import pywraplp
-from tools import SolVal, ObjVal, newSolver
-
 def gen_diet_problem(nb_foods=5, nb_nutrients=4):
     from random import randint,uniform
     data = []
@@ -23,13 +20,17 @@ def gen_diet_problem(nb_foods=5, nb_nutrients=4):
     data.append(MaxNutrient+['','','',''])
     return data
 
+from linear_solver import pywraplp
+from tools import SolVal, ObjVal, newSolver
+
 def solve_diet(N):
   s = newSolver('Diet')
   nbF,nbN = len(N)-2, len(N[0])-3                          
   FMin,FMax,FCost,NMin,NMax = nbN,nbN+1,nbN+2,nbF,nbF+1                           
   f = [s.NumVar(N[i][FMin], N[i][FMax],'f[%i]'%i) for i in range(nbF)] 
   for j in range(nbN):                                    
-    s.Add(N[NMin][j] <= s.Sum([f[i]*N[i][j] for i in range(nbF)]) <= N[NMax][j])
+    s.Add(N[NMin][j] <= s.Sum([f[i]*N[i][j] for i in range(nbF)]))
+    s.Add(s.Sum([f[i]*N[i][j] for i in range(nbF)]) <= N[NMax][j])
   s.Minimize(s.Sum([f[i]*N[i][FCost] for i in range(nbF)]))        
   rc=s.Solve()
   return rc,ObjVal(s),SolVal(f)

@@ -21,7 +21,7 @@ def main():
             s=s+' }'
             TT.append(s)
             T.append(TT)
-        T.insert(0,['Task', 'Duration','Preceeding tasks'])
+        T.insert(0,['Task', 'Duration','Preceding tasks'])
         utils.printmat(T,True)
     elif sys.argv[1]=='run' or sys.argv[1]=='runclp':
         if sys.argv[1]=='run':

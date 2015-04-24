@@ -15,10 +15,10 @@ def gen_data(n):
     return R
 
 from linear_solver import pywraplp
-from tools import ObjVal, SolVal
+from tools import ObjVal, SolVal, newSolver
+
 def solve_model(D):
-  t = 'Project management'
-  s = pywraplp.Solver(t,pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
+  s = newSolver('Project management')
   n = len(D)
   max = sum(D[i][1] for i in range(n))                           
   t = [s.NumVar(0,max,'t[%i]' % i) for i in range(n)]           

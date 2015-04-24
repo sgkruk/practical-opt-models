@@ -42,6 +42,7 @@ def main():
         Cost=5
         rc,Value,B,L,H,P,A,CP,CS=solve_model(C,T,K,I,Demand,Cost,Limits)
         if len(B):
+            print Value
             A.append([0 for l in range(len(A[0]))])
             for j in range(len(A)-1):
                 for l in range(len(A[0])):
