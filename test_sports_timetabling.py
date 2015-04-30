@@ -1,13 +1,13 @@
 
-from sports_timetabling import gen_data, solve_model
+from sports_timetabling import gen_data, solve_model, solve_model_big
 def main():
     import sys
     import random
     import tableutils
     nbdiv=2
-    nbteam=[6,7]
+    nbteam=[6,7,8]
     if len(sys.argv)<=1:
-        print('Usage is main [data|run] [seed]')
+        print('Usage is main [data|run|big] [seed]')
         return
     elif len(sys.argv)>=3:
         random.seed(int(sys.argv[2]))
@@ -17,20 +17,29 @@ def main():
         for i in range(len(D)):
             R.append(['Division '+str(i)+' teams',tableutils.set2string(D[i])])
         tableutils.printmat(R)
-    elif sys.argv[1]=='run':
-        rc,v,x=solve_model(D,T)
+    elif sys.argv[1]=='run' or sys.argv[1]=='big':
+        if sys.argv[1]=='big':
+            D,T=gen_data(4,[6])
+            T=(3,2,1,52)
+            R=[['(Intra Inter G/W Weeks)',tableutils.set2string(T)]]
+            for i in range(len(D)):
+                R.append(['Division '+str(i)+' teams',tableutils.set2string(D[i])])
+            tableutils.printmat(R)
+            rc,v,Cal=solve_model_big(D,T)
+        else:
+            rc,v,Cal=solve_model(D,T)
         if rc != 0:
             print 'Infeasible'
         else:
-            nbweeks=len(x[0][0])
-            nbteams=len(x[0])
-            R=[]
-            for w in range(nbweeks):
+            R=[['Week', 'Matches', str(v)]]
+            nbWeeks=T[3]
+            week = 0
+            for matches in Cal:
                 RR=[]
-                for i in range(nbteams):
-                    for j in range(nbteams):
-                        if i<j and x[i][j][w]>0:
-                            RR.append(str(i)+' vs '+str(j))
-                R.append(['Weeks '+str(w),RR])
-            tableutils.printmat(R)
+                for match in matches:
+                    RR.append(str(match[0]) + ' vs ' + str(match[1]))
+                RR.insert(0,week)
+                R.append(RR)
+                week+=1
+            tableutils.printmat(R,True,0)
 main()

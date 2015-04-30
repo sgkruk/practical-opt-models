@@ -1,7 +1,7 @@
 from linear_solver import pywraplp
 def SolVal(x):
   if type(x) is not list:
-    return x.SolutionValue()
+    return 0 if x is None else x.SolutionValue()
   elif type(x) is list:
     return [SolVal(e) for e in x ]
 
@@ -14,3 +14,11 @@ def newSolver(name,integer=False):
                          if integer else \
                          pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
   
+def pairs(tuple, accum=[]):
+  if tuple==[]:
+    return accum
+  else:
+    head=tuple.pop(0)
+    accum.extend((head,e) for e in tuple)
+    return ordered_pairs(tuple,accum)
+
