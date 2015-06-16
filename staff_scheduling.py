@@ -47,41 +47,42 @@ def gen_pairs(pp,n):
 
 from linear_solver import pywraplp
 from tools import SolVal,ObjVal,newSolver
+from non_convex_tricks import k_out_of_n, reify
+
 def solve_model(S,I,R,P):
   s = newSolver('Staff Scheduling',True)
   nbS,nbI,nbSets,nbPairs,nbC = len(S),len(I),len(R),len(P),S[-1][1]+1
-  x = [[s.IntVar(0,1,'') for j in range(nbS)] for i in range(nbI)]
-  z = [[[s.IntVar(0,1,'') \
-         for k in range(len(P[p][1]))] \
-         for p in range(nbPairs)] \
-         for i in range(nbI)]
-  for j in range(nbS):
-    s.Add(sum(x[i][j] for i in range(nbI)) <= 1)
-  for i in range(nbI):
+  print nbS,nbI,nbSets,nbPairs,nbC
+  nbT = 1+max(e[2] for e in S)
+  x = [[s.IntVar(0,1,'') for _ in range(nbS)] for _ in range(nbI)] 
+  z = [[[s.IntVar(0,1,'') for _ in range(len(P[p][1]))] for p in range(nbPairs)] \
+       for _ in range(nbI)]
+  for j in range(nbS): 
+    k_out_of_n(s,1,[x[i][j] for i in range(nbI)],'<=')
+  for i in range(nbI): 
     s.Add(sum(x[i][j] for j in range(nbS)) >= I[i][1][0])    
     s.Add(sum(x[i][j] for j in range(nbS)) <= I[i][1][1])
+    for t in range(nbT): 
+      k_out_of_n(s,1,[x[i][j] for j in range(nbS) if S[j][2] == t],'<=')
   WC = sum(x[i][j] * I[i][2][c] for i in range(nbI) \
-           for j in range(nbS) for c in range(nbC) if S[j][1] == c)
+           for j in range(nbS) for c in range(nbC) if S[j][1] == c) 
   WR = sum(I[i][3][r] * sum(x[i][j] for j in R[r][1]) \
-           for r in range(nbSets) for i in range(nbI))
-  for i in range(nbI):
+           for r in range(nbSets) for i in range(nbI)) 
+    
+  for i in range(nbI): 
     for p in range(nbPairs):
-      for k in range(len(P[p][1])):
-        s1 = P[p][1][k][0]
-        s2 = P[p][1][k][1]
-        s.Add(x[i][s1] + x[i][s2] -1 <= z[i][p][k])
-        s.Add(z[i][p][k] <= x[i][s1])
-        s.Add(z[i][p][k] <= x[i][s2])
+      if I[i][4][p] != 0:
+        for k in range(len(P[p][1])):
+          reify(s,[1,1],[x[i][P[p][1][k][0]],x[i][P[p][1][k][1]]],2,z[i][p][k],'>=')
   WP = sum(z[i][p][k]*I[i][4][p] for i in range(nbI) \
-           for p in range(nbPairs) for k in range(len(P[p][1])))
+           for p in range(nbPairs) for k in range(len(P[p][1])) if I[i][4][p] != 0) 
   s.Maximize(WC+WR+WP)
   rc,xs = s.Solve(),[]
   for i in range(nbI):
     xs.append([i,[[j,(I[i][2][S[j][1]],
-              sum(I[i][3][r] for r in range(nbSets) if j in R[r][1]),
-              sum(SolVal(z[i][p][k])*I[i][4][p]/2 
-                  for p in range(nbPairs) for k in range(len(P[p][1])) 
-                  if j in P[p][1][k]) 
-            )] for j in range(nbS) if SolVal(x[i][j])>0]])
-  
-  return rc,SolVal(x),xs
+                      sum(I[i][3][r] for r in range(nbSets) if j in R[r][1]),
+                      sum(SolVal(z[i][p][k])*I[i][4][p]/2 
+                          for p in range(nbPairs) for k in range(len(P[p][1])) 
+                          if j in P[p][1][k]) 
+                    )] for j in range(nbS) if SolVal(x[i][j])>0]])
+  return rc,SolVal(x),xs,ObjVal(s)

@@ -1,5 +1,5 @@
 
-from shortest_path import gen_data, solve_model, solve_all_pairs
+from shortest_path import gen_data, solve_model, solve_all_pairs, solve_tree_model, critical_tasks
 def main():
     import sys
     import random
@@ -7,7 +7,7 @@ def main():
     n=13
     header = ['P'+str(i) for i in range(n)]
     if len(sys.argv)<=1:
-        print('Usage is main [data|run|all] [seed]')
+        print('Usage is main [data|run|all|tree|pm] [seed]')
         return
     elif len(sys.argv)>2:
         random.seed(int(sys.argv[2]))
@@ -27,4 +27,18 @@ def main():
     elif sys.argv[1]=='all':
         Paths, Costs = solve_all_pairs(C)
         tableutils.printmat(tableutils.wrapmat(Costs,header,header))
+    elif sys.argv[1]=='tree':
+        rc, Val,Tree = solve_tree_model(C)
+        if rc != 0:
+            print 'Infeasible'
+        else: 
+            tableutils.printmat(tableutils.wrapmat(Tree,[],['From','To','Distance']),True,0)
+    elif sys.argv[1]=='pm':
+        D=[[0,3],[1,6],[2,3],[3,2],[4,2],[5,7],[6,7],[7,5],[8,2],[9,7],[10,4],[11,5]]
+        t=[0,3,0,3,9,0,9,16,21,21,21,3]
+        rc,Path = critical_tasks(D,t)
+        if rc != 0:
+            print 'Infeasible'
+        else:
+            print Path
 main()

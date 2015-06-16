@@ -10,11 +10,11 @@ def gen_data(n,zap=True):
                 yesno=randint(0,1)
             else:
                 yesno=1
-            if i != j:
+            if i != j and (i<j or randint(0,1)*R[j][i]==0):
                 RR.append(yesno*randint(10,30))
             else:
                 RR.append(0)
-        T = (0 if i == n-1 else randint(0,1))*randint(500,700)
+        T = (0 if i == n-1 else randint(0,1)*randint(0,1))*randint(500,700)
         RR.append(T)
         R.append(RR)
         S += T
@@ -22,10 +22,10 @@ def gen_data(n,zap=True):
     RR = []
     for i in range(n-1):
         if zap:
-            yesno=randint(0,1)
+            yesno=1-(randint(0,1)*randint(0,1))
         else:
             yesno=1
-        T = (1 if R[i][-1]==0 else 0)*yesno*randint(int(0.75*A), int(1.1*A))
+        T = (1 if R[i][-1]==0 else 0)*yesno*randint(int(0.95*A), int(1.9*A))
         RR.append(T)
         D += T
     # Need to ensure balance
@@ -37,16 +37,17 @@ def gen_data(n,zap=True):
     return R
 
 from linear_solver import pywraplp
-from tools import ObjVal, SolVal
+from my_or_tools import ObjVal, SolVal, newSolver
+
 def solve_model(D):
-  t = 'Transshipment problem'
-  s = pywraplp.Solver(t,pywraplp.Solver.CLP_LINEAR_PROGRAMMING)
+  s = newSolver('Transshipment problem')
   n = len(D[0])-1
-  G = [[s.NumVar(0.0,1000,'') for j in range(n)] for i in range(n)]  
-  for i in range(n): 
-    for j in range(n):
-      if D[i][j]==0:
-        s.Add(G[i][j] == 0)
+  B = sum([D[-1][j] for j in range(n)])
+  G = [[s.NumVar(0,B if D[i][j] else 0,'') for j in range(n)] for i in range(n)]  
+  #for i in range(n): 
+  #  for j in range(n):
+  #    if D[i][j]==0:
+  #      s.Add(G[i][j] == 0)
   for i in range(n): 
     s.Add(D[i][-1] - D[-1][i] == 
           sum(G[i][j] for j in range(n)) - sum(G[j][i] for j in range(n)))

@@ -20,10 +20,10 @@ def gen_data(m,n):
     return R
 
 from linear_solver import pywraplp
-from tools import ObjVal, SolVal
+from my_or_tools import ObjVal, SolVal, newSolver
+
 def solve_model(D):
-  t = 'Mincost flow problem'
-  s = pywraplp.Solver(t,pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
+  s = newSolver('Mincost flow problem')
   m,n = len(D)-1,len(D[0])-1
   B = sum([D[-1][j] for j in range(n)])
   G = [[s.NumVar(0,B if D[i][j] else 0,'') for j in range(n)] \

@@ -41,7 +41,7 @@ def main():
             RP.append([P[i][0],tableutils.set2string(X)])
         tableutils.printmat(tableutils.wrapmat(RP,[],['Id','Section pairs']),True,0)
     elif sys.argv[1]=='run':
-        rc,x,xs=solve_model(S,I,R,P)
+        rc,x,xs,v=solve_model(S,I,R,P)
         #tableutils.printmat(x)
         #print(xs)
         XS=[]

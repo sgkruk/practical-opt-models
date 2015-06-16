@@ -20,13 +20,13 @@ def gen_data(n):
     return R
 
 from linear_solver import pywraplp
+from my_or_tools import newSolver, SolVal, ObjVal
+
 def solve_model(D,Start=None, End=None):
-  t = 'Shortest path problem'
-  s = pywraplp.Solver(t,pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
-  n = len(D)
-  if Start is None:
+  s,n = newSolver('Shortest path problem'),len(D)
+  if Start is None: 
     Start,End = 0,len(D)-1
-  G = [[s.NumVar(0,min(1,D[i][j]),'') for j in range(n)] for i in range(n)]
+  G = [[s.NumVar(0,1 if D[i][j] else 0,'') for j in range(n)] for i in range(n)]
   for i in range(n): 
     if i == Start:
       s.Add(1 == sum(G[Start][j] for j in range(n))) 
@@ -41,12 +41,41 @@ def solve_model(D,Start=None, End=None):
   rc = s.Solve()
   Path,Cost,Cumul,node=[Start],[0],[0],Start
   while rc == 0 and node != End and len(Path)<n:
-    next = [i for i in range(n) if G[node][i].SolutionValue()==1][0]
+    next = [i for i in range(n) if SolVal(G[node][i]) == 1][0]
     Path.append(next)
     Cost.append(D[node][next])
     Cumul.append(Cumul[-1]+Cost[-1])
     node = next
-  return rc,s.Objective().Value(),Path,Cost,Cumul
+  return rc,ObjVal(s),Path,Cost,Cumul
+
+def critical_tasks(D,t):
+  s = set([t[i]+D[i][1] for i in range(len(t))]+[t[i] for i in range(len(t))])
+  n,ix,start,end,times = len(s),0,min(s),max(s),{}
+  for e in s:
+    times[e]=ix
+    ix += 1
+  M = [[0 for _ in range(n)] for _ in range(n)]
+  for i in range(len(t)): 
+    M[times[t[i]]][times[t[i]+D[i][1]]] = -D[i][1]
+  rc, v, Path, Cost, Cumul = solve_model(M,times[start],times[end])
+  T = [i for i in range(len(t)) for time in Path if times[t[i]+D[i][1]] == time]
+  return rc, T
+
+def solve_tree_model(D,Start=None):
+  s,n = newSolver('Shortest paths tree problem'),len(D)
+  Start = 0 if Start is None else Start 
+  G = [[s.NumVar(0,min(n,D[i][j]),'') for j in range(n)] for i in range(n)]
+  for i in range(n):
+    if i == Start:
+      s.Add(n-1 == sum(G[Start][j] for j in range(n))) 
+      s.Add(0 == sum(G[j][Start] for j in range(n))) 
+    else:
+      s.Add(sum(G[j][i] for j in range(n))-sum(G[i][j] for j in range(n))==1) 
+  Distance = s.Sum(G[i][j]*D[i][j] for i in range(n) for j in range(n)) 
+  s.Minimize(Distance)
+  rc = s.Solve()
+  Tree = [[i,j, D[i][j]] for i in range(n) for j in range(n) if SolVal(G[i][j])>0]
+  return rc,ObjVal(s),Tree
 
 def solve_all_pairs(D):
   n = len(D)

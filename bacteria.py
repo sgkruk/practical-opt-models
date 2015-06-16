@@ -1,6 +1,6 @@
 
 from linear_solver import pywraplp                                
-from tools import SolVal
+from my-or-tools import SolVal
 def solve_bacteria():
   t = 'Bacterial coexistence'
   s = pywraplp.Solver(t,pywraplp.Solver.GLOP_LINEAR_PROGRAMMING) 

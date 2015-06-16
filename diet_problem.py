@@ -21,7 +21,7 @@ def gen_diet_problem(nb_foods=5, nb_nutrients=4):
     return data
 
 from linear_solver import pywraplp
-from tools import SolVal, ObjVal, newSolver
+from my_or_tools import SolVal, ObjVal, newSolver
 
 def solve_diet(N):
   s = newSolver('Diet')

@@ -20,7 +20,8 @@ def gen_data(n):
   return R,S,T
 
 from linear_solver import pywraplp
-from tools import ObjVal, SolVal, newSolver
+from my_or_tools import ObjVal, SolVal, newSolver
+
 def solve_model(C,S,T,net=True):
   s,n = newSolver('Maxflow flow problem'),len(C)
   x = [[s.NumVar(0,C[i][j],'') for j in range(n)] for i in range(n)]  

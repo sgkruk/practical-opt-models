@@ -11,15 +11,15 @@ def gen_data(myfunc,n):
     return R
 
 from linear_solver import pywraplp
-from tools import ObjVal, SolVal
+from my_or_tools import ObjVal, SolVal, newSolver
+
 def solve_model(D,deg=1,objective=0):
-  t = 'Polynomial fitting'
-  s = pywraplp.Solver(t,pywraplp.Solver.CLP_LINEAR_PROGRAMMING)
-  n = len(D)
-  a = [s.NumVar(-1000,1000,'a[%i]' % i) for i in range(1+deg)]  
-  u = [s.NumVar(0,1000,'u[%i]' % i) for i in range(n)]       
-  v = [s.NumVar(0,1000,'v[%i]' % i) for i in range(n)]       
-  e = s.NumVar(0,1000,'e')                                 
+  s,n = newSolver('Polynomial fitting'),len(D)
+  b = s.infinity()
+  a = [s.NumVar(-b,b,'a[%i]' % i) for i in range(1+deg)]  
+  u = [s.NumVar(0,b,'u[%i]' % i) for i in range(n)]       
+  v = [s.NumVar(0,b,'v[%i]' % i) for i in range(n)]       
+  e = s.NumVar(0,b,'e')                                 
   for i in range(n):                              
     s.Add(D[i][1]==u[i]-v[i]+sum(a[j]*D[i][0]**j for j in range(1+deg)))
   for i in range(n):                                     

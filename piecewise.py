@@ -19,10 +19,10 @@ def gen_data(n,convex=True):
     return R,B
 
 from linear_solver import pywraplp
+from my_or_tools import ObjVal, SolVal, newSolver
+
 def minimize_piecewise_linear_convex(Points,B):
-    t = 'Piecewise'
-    s = pywraplp.Solver(t,pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
-    n = len(Points)
+    s,n = newSolver('Piecewise'),len(Points)
     x = s.NumVar(Points[0][0],Points[n-1][0],'x')
     l = [s.NumVar(0.0,1,'l[%i]' % (i,)) for i in range(n)]  
     s.Add(1 == sum(l[i] for i in range(n)))               

@@ -19,23 +19,26 @@ def main():
         utils.printmat(C)
     elif sys.argv[1]=='run':
         rc,V,G=transship_dist.solve_model(C)
-        T=[]
-        for i in range(n):
-            T.append([0 for j in range(n+1)])
-            tot = 0
+        if rc != 0:
+            print 'Infeasible'
+        else:
+            T=[]
+            for i in range(n):
+                T.append([0 for j in range(n+1)])
+                tot = 0
+                for j in range(n):
+                    T[i][j] = int(G[i][j])
+                    tot += int(G[i][j])
+                T[i][-1] = tot
+            TT = []
             for j in range(n):
-                T[i][j] = int(G[i][j])
-                tot += int(G[i][j])
-            T[i][-1] = tot
-        TT = []
-        for j in range(n):
-            TT.append(sum([T[i][j] for i in range(n)]))
-        TT.insert(0,'In')
-        T.append(TT)
-        for i in range(n):
-            T[i].insert(0,'N'+str(i))
+                TT.append(sum([T[i][j] for i in range(n)]))
+            TT.insert(0,'In')
+            T.append(TT)
+            for i in range(n):
+                T[i].insert(0,'N'+str(i))
 
-        T.insert(0,['From/To']+['N'+str(i) for i in range(n)]+['Out'])
+            T.insert(0,['From/To']+['N'+str(i) for i in range(n)]+['Out'])
             
-        utils.printmat(T)
+            utils.printmat(T)
 main()
