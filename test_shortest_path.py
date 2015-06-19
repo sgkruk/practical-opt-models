@@ -25,7 +25,7 @@ def main():
         T=[Path,Cost,Cumul]
         tableutils.printmat(T,True)
     elif sys.argv[1]=='all':
-        Paths, Costs = solve_all_pairs(C)
+        rc, Paths, Costs = solve_all_pairs(C)
         tableutils.printmat(tableutils.wrapmat(Costs,header,header))
     elif sys.argv[1]=='tree':
         rc, Val,Tree = solve_tree_model(C)

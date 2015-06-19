@@ -28,11 +28,15 @@ def main():
         G=minimize_piecewise_linear_convex(Data,B)
         G=[[i for i in range(n+1)],G]
         G[0].append('Solution')
-        G[1].append('sum \lambda='+str(sum(G[1][i] for i in range(n+1))))
+        G[1].append('\sum \delta='+str(sum(G[1][i] for i in range(n+1))))
         G.append([Data[i][0] for i in range(n+1)])
         G[2].append('x='+str(sum(G[1][i]*G[2][i] for i in range(n+1))))
         G.append([Data[i][1] for i in range(n+1)])
         G[3].append('Cost='+str("{0:.2f}".format(sum(G[1][i]*G[3][i] for i in range(n+1)))))
+        G[0].insert(0,'Interval')
+        G[1].insert(0,'$\delta_i$')
+        G[2].insert(0,'$x_i$')
+        G[3].insert(0,'$f(x_i)$')
         tableutils.printmat(G,True)
     elif sys.argv[1]=='ncvx':
         Data=[(C[i][0], C[i][3]) for i in range(n)]
@@ -41,7 +45,7 @@ def main():
         if rc == 0:
             G=[[i for i in range(n+1)],G]
             G[0].append('Solution')
-            G[1].append('\sum \lambda='+str(sum(G[1][i] for i in range(n+1))))
+            G[1].append('\sum \delta='+str(sum(G[1][i] for i in range(n+1))))
             G.append([Data[i][0] for i in range(n+1)])
             G[2].append('x='+str(sum(G[1][i]*G[2][i] for i in range(n+1))))
             G.append(H)
@@ -53,8 +57,13 @@ def main():
             print 'Infeasible',rc,G,H
     elif sys.argv[1]=='non':
         G=verbose_minimize_non_linear(my_function,2,8,0.05)
-        G.insert(0,[i for i in range(len(G[0]))])
-        G[0].append('x')
-        G[0].append('f(x)')
-        tableutils.printmat(G,True)
+        m=len(G)
+        G.insert(0,['Interval']+[i for i in range(len(G[0]))])
+        G[0].append('$x^*$')
+        G[0].append('$f(x^*)$')
+        for i in range(1,m,3):
+            G[i].insert(0,'$x_i$')
+            G[i+1].insert(0,'$f(x_i)$')
+            G[i+2].insert(0,'$\delta_i$')
+        tableutils.printmat(G,True,3)
 main()

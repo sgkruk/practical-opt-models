@@ -17,16 +17,19 @@ def gen_data(m,n):
     return R,[randint(1,10) for i in range(m)]
 
 from linear_solver import pywraplp
+from my_or_tools import ObjVal, SolVal
+
 def solve_model(D,C=None):
-    t = 'Set Cover'
-    s = pywraplp.Solver(t,pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING) 
-    nbSuppliers = len(D)
-    nbparts = max([e for d in D for e in d])+1
-    S = [s.IntVar(0,1,'')  for i in range(nbSuppliers)] 
-    for j in range(nbparts):
-        s.Add(1 <= sum(S[i] for i in range(nbSuppliers) if j in D[i])) 
-    s.Minimize(s.Sum(S[i]*(1 if C==None else C[i]) for i in range(nbSuppliers))) 
-    rc = s.Solve()
-    Suppliers = [i for i in range(nbSuppliers) if S[i].SolutionValue()>0]
-    Parts = [[i for i in range(nbSuppliers) if j in D[i]] for j in range(nbparts)]
-    return rc,s.Objective().Value(),Suppliers,Parts
+  t = 'Set Cover'
+  s = pywraplp.Solver(t,pywraplp.Solver.CBC_MIXED_INTEGER_PROGRAMMING) 
+  nbSup = len(D)
+  nbParts = max([e for d in D for e in d])+1
+  S = [s.IntVar(0,1,'')  for i in range(nbSup)] 
+  for j in range(nbParts):
+    s.Add(1 <= sum(S[i] for i in range(nbSup) if j in D[i])) 
+  s.Minimize(s.Sum(S[i]*(1 if C is None else C[i]) for i in range(nbSup))) 
+  rc = s.Solve()
+  Suppliers = [i for i in range(nbSup) if SolVal(S[i])>0]
+  Parts = [[i for i in range(nbSup) if j in D[i] and SolVal(S[i])>0]
+           for j in range(nbParts)]
+  return rc,ObjVal(s),Suppliers,Parts

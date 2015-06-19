@@ -4,9 +4,9 @@ def gen_data(myfunc,n):
     R=[]
     for i in range(n):
         RR=[]
-        t = i+uniform(0,1)
+        t = i+uniform(-0.2,0.2)
         RR.append(t)
-        RR.append(myfunc(t)+myfunc(t)*uniform(0,0.5))
+        RR.append(myfunc(t)*uniform(0.8,1.2))
         R.append(RR)
     return R
 
@@ -30,35 +30,5 @@ def solve_model(D,deg=1,objective=0):
   else:
     Cost = sum(u[i]+v[i] for i in range(n))                
   s.Minimize(Cost)
-  s.Solve()
-  return SolVal(a)
-
-def main():
-    import sys
-    import random
-    import utils
-    n=10
-    degree=2
-    if len(sys.argv)<=1:
-        print('Usage is main [data|run] [seed]')
-        return
-    elif len(sys.argv)>=2:
-        random.seed(int(sys.argv[2]))
-    C=gen_data(lambda t:  1.8*t*t - 1.5*t + 0.3, n)
-    if sys.argv[1]=='data':
-        C.insert(0,['$t_i$','$f_i$'])
-        utils.printmat(C,True)
-    elif sys.argv[1]=='run':
-        G=solve_model(C,degree,0)
-        G1=solve_model(C,degree,1)
-        T=[]
-        error=0
-        for i in range(n):
-            fti = sum(G[j]*C[i][0]**j for j in range(degree+1))
-            fti1 = sum(G1[j]*C[i][0]**j for j in range(degree+1))
-            error += abs(fti - C[i][1])
-            T.append([C[i][0], C[i][1], fti, abs(C[i][1]-fti), fti1, abs(C[i][1]-fti1)])
-        T.insert(0,['$t_i$','$f_i$', '$f_{sum}(t_i)$', '$e_i^{sum}$', '$f_{max}(t_i)$', '$e_i^{max}$'])          
-        utils.printmat(T,True)
-
-main()
+  rc = s.Solve()
+  return rc,ObjVal(s),SolVal(a)

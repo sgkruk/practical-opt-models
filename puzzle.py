@@ -1,7 +1,7 @@
 
 from linear_solver import pywraplp
 from my_or_tools import newSolver, SolVal
-from non_convex_tricks import k_out_of_n
+from my_or_tools import k_out_of_n
 
 def get_row(x,i):
     return [x[i][j] for j in range(len(x[0]))]
@@ -98,7 +98,7 @@ def solve_smm():
   rc = s.Solve()
   return rc,SolVal([a[0] for a in ALL])
 
-from non_convex_tricks import reify, reify_force, reify_raise
+from my_or_tools import reify, reify_force, reify_raise
 
 def solve_lady_or_tiger():
   s = newSolver('Lady or tider', True)

@@ -39,10 +39,10 @@ def minimize_non_linear(my_function,left,right,precision):
   while right-left > precision:
     delta = (right - left)/(n-1.0)                          
     points = [(left+delta*i, my_function(left+delta*i)) for i in range(n)]  
-    G=minimize_piecewise_linear_convex(points,left)
-    x=sum([G[i]*points[i][0] for i in range(n)])
-    left=points[max(0,[i-1 for i in range(n) if G[i]>0][0])][0]  
-    right=points[min(n-1,[i+1 for i in range(n-1,0,-1) if G[i]>0][0])][0] 
+    G = minimize_piecewise_linear_convex(points,left)
+    x = sum([G[i]*points[i][0] for i in range(n)])
+    left = points[max(0,[i-1 for i in range(n) if G[i]>0][0])][0]  
+    right = points[min(n-1,[i+1 for i in range(n-1,0,-1) if G[i]>0][0])][0] 
   return x.SolutionValue()
 
 def verbose_minimize_non_linear(my_function,left,right,precision):

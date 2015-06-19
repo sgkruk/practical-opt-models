@@ -37,6 +37,8 @@ def formatmat(M,zeroes=False,decimals=4):
                 if el or zeroes :
                     if decimals==4:
                         el = '{0:.4f}'.format(el)
+                    elif decimals==3:
+                        el = '{0:.3f}'.format(el)
                     elif decimals==2:
                         el = '${0:.2f}'.format(el)
                     elif decimals==1:
@@ -57,3 +59,10 @@ def printmat(M,zeroes=False,decimals=4):
                 l=l+','
         print(l)
   
+def splitwrapmat(M,left,header):
+    T=wrapmat(M,left,None)
+    if len(T) % 2:
+        T.append([])
+    T2 = [T[i]+T[i+1] for i in range(0,len(T),2)]
+    return wrapmat(T2,[],header+header)
+        

@@ -91,4 +91,4 @@ def solve_all_pairs(D):
               if Costs[Path[k]][Path[l]] is None:
                 Costs[Path[k]][Path[l]] = Cumul[l]-Cumul[k]
                 Paths[Path[k]][Path[l]] = Path[k:l+1]
-  return Paths, Costs
+  return 0, Paths, Costs
